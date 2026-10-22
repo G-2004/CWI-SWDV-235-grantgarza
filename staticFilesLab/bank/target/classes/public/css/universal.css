@@ -1,0 +1,66 @@
+html, body {
+    margin: 0;
+}
+
+.navBar {
+    background-color: #F5EBD8;
+    text-align: center;
+    margin-top: 0;
+    padding: 10px;
+    color: #000000;
+}
+
+html {
+    background-color: #344a61;
+}
+
+.mainContent {
+    text-align: center;
+    color: #ffffff;
+}
+
+
+.button {
+    background-color: #F5EBD8;
+    color: #243B53;
+    border: 2px solid #F5EBD8;
+    border-radius: 18px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    white-space: nowrap;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.button:hover {
+    background-color: #E6D7BC;
+    border-color: #E6D7BC;
+}
+
+.formField {
+    margin: 12px 0;
+    white-space: nowrap;
+}
+
+.formField label {
+    display: inline-block;
+    min-width: 100px;
+    text-align: right;
+    margin-right: 10px;
+    color: #FFFFFF;
+}
+
+.formField input {
+    background-color: #F5EBD8;
+    color: #243B53;
+    border: 1px solid #C8BDA9;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 16px;
+}
+
+.formField input:focus {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+}
