@@ -13,10 +13,12 @@
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
-    <dependency>
-        <groupId>me.gosimple</groupId>
-        <artifactId>nbvcxz</artifactId>
-        <version>1.5.1</version>
-    </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>me.gosimple</groupId>
+            <artifactId>nbvcxz</artifactId>
+            <version>1.5.1</version>
+        </dependency>
+    </dependencies>
 
 </project>
