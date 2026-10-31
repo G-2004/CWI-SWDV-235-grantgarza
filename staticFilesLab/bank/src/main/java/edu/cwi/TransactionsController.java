@@ -5,7 +5,6 @@ import io.javalin.http.Context;
 import static j2html.TagCreator.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 
 public class TransactionsController implements CrudHandler {
 
@@ -13,40 +12,9 @@ public class TransactionsController implements CrudHandler {
 
     @Override
     public void getAll(Context ctx) {
-        ctx.html(
-            html(
-                body(
-                    h1("Transactions"),
-
-                    form().withMethod("post").withAction("/transactions")
-                        .with(
-                            input().withType("text").withName("transaction"),
-                            button("Add Transaction").withType("submit")
-                        ),
-
-                    each(IntStream.range(0, transactions.size()).boxed().toList(), i ->
-                        p("ID: " + i + " - " + transactions.get(i))
-                    ),
-
-                    h2("Update Transaction"),
-
-                    form().withMethod("post").withAction("/transactions/update")
-                        .with(
-                            input().withType("number").withName("id"),
-                            input().withType("text").withName("transaction"),
-                            button("Update").withType("submit")
-                        ),
-
-                    h2("Delete Transaction"),
-
-                    form().withMethod("post").withAction("/transactions/delete")
-                        .with(
-                            input().withType("number").withName("id"),
-                            button("Delete").withType("submit")
-                        )
-
-                )
-            ).render()
+        ctx.render(
+            "jte/transactionsPage.jte",
+            java.util.Map.of("transactions", transactions)
         );
     }
 
@@ -65,9 +33,7 @@ public class TransactionsController implements CrudHandler {
     @Override
     public void create(Context ctx) {
         String transaction = ctx.formParam("transaction");
-
         transactions.add(transaction);
-
         ctx.redirect("/transactions");
     }
 
@@ -83,7 +49,6 @@ public class TransactionsController implements CrudHandler {
             }
 
             ctx.redirect("/transactions");
-
         } catch (NumberFormatException e) {
             ctx.status(400).result("Invalid transaction ID.");
         }
@@ -99,10 +64,8 @@ public class TransactionsController implements CrudHandler {
             }
 
             ctx.redirect("/transactions");
-
         } catch (NumberFormatException e) {
             ctx.status(400).result("Invalid transaction ID.");
         }
     }
-
 }
