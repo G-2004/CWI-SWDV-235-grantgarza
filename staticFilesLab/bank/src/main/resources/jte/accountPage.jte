@@ -1,13 +1,8 @@
 @param String title
 @param edu.cwi.UserAccount account
 
-@template.accountLayout(
+@template.jte.accountLayout(
     title = title,
-    account = @template.userAccount(
-        name = account.name(),
-        balance = account.formatBalance()
-    ),
-    detail = @template.transactionsList(
-        transactions = account.transactions()
-    )
+    account = @`@template.jte.userAccount(account.name(), account.formatBalance())`,
+    detail = @`@template.jte.transactionsList(account.transactions())`
 )

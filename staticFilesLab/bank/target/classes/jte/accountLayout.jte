@@ -1,16 +1,26 @@
-@param String title
-@param gg.jte.Content account
-@param gg.jte.Content detail
+@import gg.jte.Content
 
-<!DOCTYPE html>
-<html>
+@param String title
+@param Content account
+@param Content detail
+
+<!doctype html>
+<html lang="en">
     <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>${title}</title>
     </head>
     <body>
-        <main>
-            ${account}
-            ${detail}
-        </main>
+        <div class="container">
+            <div class="row align-items-start">
+                <div class="col">
+                    ${account}
+                </div>
+                <div class="col">
+                    ${detail}
+                </div>
+            </div>
+        </div>
     </body>
 </html>
