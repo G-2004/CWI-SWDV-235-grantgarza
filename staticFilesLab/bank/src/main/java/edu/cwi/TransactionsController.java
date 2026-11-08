@@ -1,3 +1,4 @@
+
 package edu.cwi;
 
 import io.javalin.apibuilder.CrudHandler;
@@ -5,6 +6,8 @@ import io.javalin.http.Context;
 import static j2html.TagCreator.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 public class TransactionsController implements CrudHandler {
 
@@ -12,9 +15,28 @@ public class TransactionsController implements CrudHandler {
 
     @Override
     public void getAll(Context ctx) {
+
+        Map<String, String> accountTransactions = new LinkedHashMap<>();
+
+        for (int i = 0; i < transactions.size(); i++) {
+            accountTransactions.put(
+                String.valueOf(i),
+                transactions.get(i)
+            );
+        }
+
+        UserAccount account = new UserAccount(
+            "Account Holder",
+            1000.00,
+            accountTransactions
+        );
+
         ctx.render(
-            "jte/transactionsPage.jte",
-            java.util.Map.of("transactions", transactions)
+            "jte/accountPage.jte",
+            Map.of(
+                "title", "Account",
+                "account", account
+            )
         );
     }
 
