@@ -26,8 +26,10 @@ public class TransactionsController implements CrudHandler {
         }
 
         UserAccount account = new UserAccount(
+            "00000000-0000-0000-0000-000000000000",
             "Account Holder",
-            1000.00,
+            AppRole.CUSTOMER,
+            10.00,
             accountTransactions
         );
 
