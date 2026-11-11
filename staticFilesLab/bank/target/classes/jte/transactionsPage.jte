@@ -4,6 +4,8 @@
 <html>
 <head>
     <title>Transactions</title>
+
+    <link rel="stylesheet" href="css/universal.css">
 </head>
 <body>
     <h1>Transactions</h1>

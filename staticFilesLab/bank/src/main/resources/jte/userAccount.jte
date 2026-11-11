@@ -9,4 +9,7 @@
     <div>
         <strong>Balance:</strong>&nbsp;${balance}
     </div>
+    <div>
+        <a href="/logout">Log Out</a>
+    </div>
 </div>

@@ -12,19 +12,19 @@ public class AuthController {
     record Pair(String a, String b) {}
 
     private static final Map<Pair, UserAccount> userMap = Map.of(
-        new Pair("ajones", "weak"),
+        new Pair("test", "test"),
         new UserAccount(
             "94f6901f-cd0f-4c90-81dc-3601a071c077",
-            "Alice Jones",
+            "Testy McTestface",
             AppRole.CUSTOMER,
             750.00,
             Map.of("1", "Deposited $750.00")
         ),
 
-        new Pair("bjones", "weak"),
+        new Pair("Gigi2004", "real-Passw0rd"),
         new UserAccount(
             "99377dc1-617d-45bd-b5fe-ac6418f06f43",
-            "Bob Jones",
+            "Gigi Poortinga",
             AppRole.CUSTOMER,
             500.00,
             Map.of("1", "Deposited $500.00")
