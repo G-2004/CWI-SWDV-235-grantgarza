@@ -1,3 +1,4 @@
+
 package edu.cwi;
 
 import io.javalin.Javalin;
@@ -13,66 +14,72 @@ public class Main {
     public static void main(String[] args) {
 
         var transactionsController = new TransactionsController();
+        var usersController = new UsersController();
 
         var app = Javalin.create(config -> {
             config.fileRenderer(new JavalinJte());
             config.staticFiles.add("/public", Location.CLASSPATH);
 
-        config.routes.apiBuilder(() -> {
-            path("transactions", () -> {
-                crud("{id}", transactionsController);
+            config.routes.apiBuilder(() -> {
+                path("transactions", () -> {
+                    crud("{id}", transactionsController);
 
-                post("update", ctx ->
-                    transactionsController.update(ctx, ctx.formParam("id"))
-                );
+                    post("update", ctx ->
+                        transactionsController.update(ctx, ctx.formParam("id"))
+                    );
 
-                post("delete", ctx ->
-                    transactionsController.delete(ctx, ctx.formParam("id"))
-                );
-            });
-            path("account", List.of(AppRole.CUSTOMER), () -> {
-                get(ctx -> {
-                    String userId = ctx.cookieStore().get("user-id");
-
-                    UserAccount account = AuthController.getUser(userId)
-                        .orElseThrow(UnauthorizedResponse::new);
-
-                    ctx.render(
-                        "jte/accountPage.jte",
-                        Map.of(
-                            "title", "Account",
-                            "account", account
-                        )
+                    post("delete", ctx ->
+                        transactionsController.delete(ctx, ctx.formParam("id"))
                     );
                 });
+
+                path("users", () -> {
+                    crud("{id}", usersController);
+                });
+
+                path("account", List.of(AppRole.CUSTOMER), () -> {
+                    get(ctx -> {
+                        String userId = ctx.cookieStore().get("user-id");
+
+                        UserAccount account = AuthController.getUser(userId)
+                            .orElseThrow(UnauthorizedResponse::new);
+
+                        ctx.render(
+                            "jte/accountPage.jte",
+                            Map.of(
+                                "title", "Account",
+                                "account", account
+                            )
+                        );
+                    });
+                });
             });
-        });
 
-        config.routes.beforeMatched(ctx -> {
-            if (ctx.routeRoles().isEmpty()) {
-                return;
-            }
+            config.routes.beforeMatched(ctx -> {
+                if (ctx.routeRoles().isEmpty()) {
+                    return;
+                }
 
-            String role = ctx.cookieStore().get("user-role");
+                String role = ctx.cookieStore().get("user-role");
 
-            if (role == null) {
-                throw new UnauthorizedResponse();
-            }
+                if (role == null) {
+                    throw new UnauthorizedResponse();
+                }
 
-            AppRole appRole = AppRole.valueOf(role);
+                AppRole appRole = AppRole.valueOf(role);
 
-            if (!ctx.routeRoles().contains(appRole)) {
-                throw new UnauthorizedResponse();
-            }
-        });
+                if (!ctx.routeRoles().contains(appRole)) {
+                    throw new UnauthorizedResponse();
+                }
+            });
 
-        config.routes.post("/account", AuthController::authenticate);
+            config.routes.post("/account", AuthController::authenticate);
 
-        config.routes.get("/logout", AuthController::logout);
+            config.routes.get("/logout", AuthController::logout);
 
-        config.routes.get("/index", ctx -> {
-            ctx.redirect("/");
-        });
+            config.routes.get("/index", ctx -> {
+                ctx.redirect("/");
+            });
         }).start(7070);
     }
 }

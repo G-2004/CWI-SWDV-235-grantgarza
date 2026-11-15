@@ -2,59 +2,80 @@
 package edu.cwi;
 
 import io.javalin.http.Context;
+import org.apache.ibatis.session.SqlSession;
 
-import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public class AuthController {
 
-    record Pair(String a, String b) {}
-
-    private static final Map<Pair, UserAccount> userMap = Map.of(
-        new Pair("test", "test"),
-        new UserAccount(
-            "94f6901f-cd0f-4c90-81dc-3601a071c077",
-            "Testy McTestface",
-            AppRole.CUSTOMER,
-            750.00,
-            Map.of("1", "Deposited $750.00")
-        ),
-
-        new Pair("Gigi2004", "real-Passw0rd"),
-        new UserAccount(
-            "99377dc1-617d-45bd-b5fe-ac6418f06f43",
-            "Gigi Poortinga",
-            AppRole.CUSTOMER,
-            500.00,
-            Map.of("1", "Deposited $500.00")
-        )
-    );
-
     public static Optional<UserAccount> getUser(String id) {
 
-        Collection<UserAccount> accounts = userMap.values();
+        try (SqlSession session =
+                MyBatisConfig.getSqlSessionFactory().openSession()) {
 
-        for (UserAccount account : accounts) {
-            if (account.id().equals(id)) {
-                return Optional.of(account);
+            UserMapper userMapper = session.getMapper(UserMapper.class);
+            AccountMapper accountMapper = session.getMapper(AccountMapper.class);
+            TransactionMapper transactionMapper =
+                    session.getMapper(TransactionMapper.class);
+
+            User user = userMapper.selectById(Long.valueOf(id));
+
+            if (user == null) {
+                return Optional.empty();
             }
-        }
 
-        return Optional.empty();
+            Account account = accountMapper.selectByUserId(user.getId());
+
+            if (account == null) {
+                return Optional.empty();
+            }
+
+            List<Transaction> records =
+                    transactionMapper.selectByAccountId(account.getId());
+
+            Map<String, String> transactions = new LinkedHashMap<>();
+
+            for (Transaction transaction : records) {
+                String description = transaction.getDescription();
+
+                if (description == null) {
+                    description = transaction.getTransactionType()
+                            + " $" + transaction.getAmount();
+                }
+
+                transactions.put(
+                        String.valueOf(transaction.getId()),
+                        description
+                );
+            }
+
+            UserAccount userAccount = new UserAccount(
+                    String.valueOf(user.getId()),
+                    user.getFirstName() + " " + user.getLastName(),
+                    AppRole.valueOf(user.getRole()),
+                    account.getBalance().doubleValue(),
+                    transactions
+            );
+
+            return Optional.of(userAccount);
+        }
     }
 
     public static void authenticate(Context ctx) {
 
+        UsersController usersController = new UsersController();
+
         String username = ctx.formParam("username");
         String password = ctx.formParam("password");
 
-        Pair credentials = new Pair(username, password);
-        UserAccount user = userMap.get(credentials);
+        User user = usersController.authenticateUser(ctx, username, password);
 
         if (user != null) {
-            ctx.cookieStore().set("user-id", user.id());
-            ctx.cookieStore().set("user-role", user.role());
+            ctx.cookieStore().set("user-id", String.valueOf(user.getId()));
+            ctx.cookieStore().set("user-role", user.getRole());
             ctx.redirect("/account");
         } else {
             ctx.cookieStore().clear();
