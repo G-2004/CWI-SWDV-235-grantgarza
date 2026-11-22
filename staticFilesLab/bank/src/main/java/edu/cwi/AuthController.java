@@ -38,13 +38,12 @@ public class AuthController {
                 String description = transaction.getDescription();
 
                 if (description == null) {
-                    description = transaction.getTransactionType()
-                            + " $" + transaction.getAmount();
+                    description = transaction.getTransactionType();
                 }
 
                 transactions.put(
                         String.valueOf(transaction.getId()),
-                        description
+                        description + " - $" + transaction.getAmount()
                 );
             }
 
@@ -91,13 +90,12 @@ public class AuthController {
                 String description = transaction.getDescription();
 
                 if (description == null) {
-                    description = transaction.getTransactionType()
-                            + " $" + transaction.getAmount();
+                    description = transaction.getTransactionType();
                 }
 
                 transactions.put(
                         String.valueOf(transaction.getId()),
-                        description
+                        description + " - $" + transaction.getAmount()
                 );
             }
 
