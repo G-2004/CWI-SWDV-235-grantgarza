@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.Select;
+import java.util.List;
 
 public interface AccountMapper {
 
@@ -29,4 +30,26 @@ public interface AccountMapper {
     })
     
     Account selectByUserId(Long userId);
+
+    @Select("""
+        SELECT * FROM accounts
+        WHERE user_id = #{userId}
+        """)
+    @Results({
+        @Result(property = "id", column = "account_id"),
+        @Result(property = "userId", column = "user_id"),
+        @Result(property = "accountType", column = "account_type")
+    })
+    List<Account> selectAllByUserId(Long userId);
+
+    @Select("""
+        SELECT * FROM accounts
+        WHERE account_id = #{id}
+        """)
+    @Results({
+        @Result(property = "id", column = "account_id"),
+        @Result(property = "userId", column = "user_id"),
+        @Result(property = "accountType", column = "account_type")
+    })
+    Account selectById(Long id);
 }

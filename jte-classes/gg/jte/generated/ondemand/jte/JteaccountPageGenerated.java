@@ -7,7 +7,7 @@ public final class JteaccountPageGenerated {
 		jteOutput.writeContent("\r\n");
 		gg.jte.generated.ondemand.jte.JteaccountLayoutGenerated.render(jteOutput, jteHtmlInterceptor, title, new gg.jte.html.HtmlContent() {
 			public void writeTo(gg.jte.html.HtmlTemplateOutput jteOutput) {
-				gg.jte.generated.ondemand.jte.JteuserAccountGenerated.render(jteOutput, jteHtmlInterceptor, account.name(), account.formatBalance());
+				gg.jte.generated.ondemand.jte.JteuserAccountGenerated.render(jteOutput, jteHtmlInterceptor, account.name(), account.formatBalance(), account.id());
 			}
 		}, new gg.jte.html.HtmlContent() {
 			public void writeTo(gg.jte.html.HtmlTemplateOutput jteOutput) {

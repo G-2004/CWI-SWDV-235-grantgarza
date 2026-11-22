@@ -11,6 +11,55 @@ import java.util.Optional;
 
 public class AuthController {
 
+    public static Optional<UserAccount> getAccount(String userId, String accountId) {
+
+        try (SqlSession session =
+                MyBatisConfig.getSqlSessionFactory().openSession()) {
+
+            UserMapper userMapper = session.getMapper(UserMapper.class);
+            AccountMapper accountMapper = session.getMapper(AccountMapper.class);
+            TransactionMapper transactionMapper =
+                    session.getMapper(TransactionMapper.class);
+
+            User user = userMapper.selectById(Long.valueOf(userId));
+            Account account = accountMapper.selectById(Long.valueOf(accountId));
+
+            if (user == null || account == null ||
+                    !account.getUserId().equals(user.getId())) {
+                return Optional.empty();
+            }
+
+            List<Transaction> records =
+                    transactionMapper.selectByAccountId(account.getId());
+
+            Map<String, String> transactions = new LinkedHashMap<>();
+
+            for (Transaction transaction : records) {
+                String description = transaction.getDescription();
+
+                if (description == null) {
+                    description = transaction.getTransactionType()
+                            + " $" + transaction.getAmount();
+                }
+
+                transactions.put(
+                        String.valueOf(transaction.getId()),
+                        description
+                );
+            }
+
+            UserAccount userAccount = new UserAccount(
+                    String.valueOf(account.getId()),
+                    user.getFirstName() + " " + user.getLastName(),
+                    AppRole.valueOf(user.getRole()),
+                    account.getBalance().doubleValue(),
+                    transactions
+            );
+
+            return Optional.of(userAccount);
+        }
+    }
+
     public static Optional<UserAccount> getUser(String id) {
 
         try (SqlSession session =
@@ -76,7 +125,7 @@ public class AuthController {
         if (user != null) {
             ctx.cookieStore().set("user-id", String.valueOf(user.getId()));
             ctx.cookieStore().set("user-role", user.getRole());
-            ctx.redirect("/account");
+            ctx.redirect("/accounts");
         } else {
             ctx.cookieStore().clear();
             ctx.redirect("/unauthorized.html");

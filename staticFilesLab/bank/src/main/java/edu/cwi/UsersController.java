@@ -29,6 +29,16 @@ public class UsersController implements CrudHandler {
         }
     }
 
+    public User getUser(String id) {
+        try (SqlSession session =
+                MyBatisConfig.getSqlSessionFactory().openSession()) {
+
+            UserMapper mapper = session.getMapper(UserMapper.class);
+
+            return mapper.selectById(Long.valueOf(id));
+        }
+    }
+
     @Override
     public void getOne(Context ctx, String resourceId) {
         try (SqlSession session =

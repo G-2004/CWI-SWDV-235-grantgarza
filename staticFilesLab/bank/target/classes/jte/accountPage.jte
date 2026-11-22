@@ -3,6 +3,6 @@
 
 @template.jte.accountLayout(
     title = title,
-    account = @`@template.jte.userAccount(account.name(), account.formatBalance())`,
+    account = @`@template.jte.userAccount(account.name(), account.formatBalance(), account.id())`,
     detail = @`@template.jte.transactionsList(account.transactions())`
 )

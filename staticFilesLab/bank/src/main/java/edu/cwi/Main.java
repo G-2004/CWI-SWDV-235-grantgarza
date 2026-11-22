@@ -37,11 +37,33 @@ public class Main {
                     crud("{id}", usersController);
                 });
 
-                path("account", List.of(AppRole.CUSTOMER), () -> {
+                path("accounts", List.of(AppRole.CUSTOMER), () -> {
                     get(ctx -> {
                         String userId = ctx.cookieStore().get("user-id");
 
-                        UserAccount account = AuthController.getUser(userId)
+                        User user = usersController.getUser(userId);
+
+                        try (var session = MyBatisConfig.getSqlSessionFactory().openSession()) {
+                            AccountMapper accountMapper = session.getMapper(AccountMapper.class);
+
+                            List<Account> accounts =
+                                accountMapper.selectAllByUserId(user.getId());
+
+                            ctx.render("jte/accountsPage.jte", Map.of(
+                                "title", "Accounts",
+                                "user", user,
+                                "accounts", accounts
+                            ));
+                        }
+                    });
+                });
+
+                path("account", List.of(AppRole.CUSTOMER), () -> {
+                    get("{id}", ctx -> {
+                        String userId = ctx.cookieStore().get("user-id");
+                        String accountId = ctx.pathParam("id");
+
+                        UserAccount account = AuthController.getAccount(userId, accountId)
                             .orElseThrow(UnauthorizedResponse::new);
 
                         ctx.render(
@@ -53,6 +75,7 @@ public class Main {
                         );
                     });
                 });
+
             });
 
             config.routes.beforeMatched(ctx -> {
