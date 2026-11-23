@@ -3,93 +3,99 @@ package edu.cwi;
 
 import io.javalin.apibuilder.CrudHandler;
 import io.javalin.http.Context;
-import static j2html.TagCreator.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.LinkedHashMap;
+import org.apache.ibatis.session.SqlSession;
+
+import java.math.BigDecimal;
 
 public class TransactionsController implements CrudHandler {
 
-    private final List<String> transactions = new ArrayList<>();
+    public void createForAccount(Context ctx, String accountId) {
+
+        String userId = ctx.cookieStore().get("user-id");
+        String transactionType = ctx.formParam("transactionType");
+        String amountParam = ctx.formParam("amount");
+        String description = ctx.formParam("description");
+
+        try {
+            Long parsedAccountId = Long.valueOf(accountId);
+            BigDecimal amount = new BigDecimal(amountParam);
+
+            if (userId == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+                ctx.status(400).result("Invalid transaction.");
+                return;
+            }
+
+            if (!"DEPOSIT".equals(transactionType)
+                    && !"WITHDRAWAL".equals(transactionType)) {
+                ctx.status(400).result("Invalid transaction type.");
+                return;
+            }
+
+            try (SqlSession session =
+                    MyBatisConfig.getSqlSessionFactory().openSession()) {
+
+                UserMapper userMapper = session.getMapper(UserMapper.class);
+                AccountMapper accountMapper = session.getMapper(AccountMapper.class);
+                TransactionMapper transactionMapper =
+                        session.getMapper(TransactionMapper.class);
+
+                User user = userMapper.selectById(Long.valueOf(userId));
+                Account account = accountMapper.selectById(parsedAccountId);
+
+                if (user == null || account == null
+                        || !account.getUserId().equals(user.getId())) {
+                    ctx.status(403).result("Account not found or access denied.");
+                    return;
+                }
+
+                Transaction transaction = new Transaction();
+                transaction.setAccountId(account.getId());
+                transaction.setTransactionType(transactionType);
+                transaction.setAmount(amount);
+                transaction.setDescription(description);
+
+                transactionMapper.insert(transaction);
+
+                if ("DEPOSIT".equals(transactionType)) {
+                    account.setBalance(account.getBalance().add(amount));
+                } else {
+                    account.setBalance(account.getBalance().subtract(amount));
+                }
+
+                accountMapper.updateBalance(account);
+
+                session.commit();
+            }
+
+            ctx.redirect("/account/" + accountId);
+
+        } catch (NumberFormatException e) {
+            ctx.status(400).result("Invalid account ID or amount.");
+        }
+    }
 
     @Override
     public void getAll(Context ctx) {
-
-        Map<String, String> accountTransactions = new LinkedHashMap<>();
-
-        for (int i = 0; i < transactions.size(); i++) {
-            accountTransactions.put(
-                String.valueOf(i),
-                transactions.get(i)
-            );
-        }
-
-        UserAccount account = new UserAccount(
-            "00000000-0000-0000-0000-000000000000",
-            "Account Holder",
-            AppRole.CUSTOMER,
-            10.00,
-            accountTransactions
-        );
-
-        ctx.render(
-            "jte/accountPage.jte",
-            Map.of(
-                "title", "Account",
-                "account", account
-            )
-        );
+        ctx.status(405).result("Method not supported.");
     }
 
     @Override
     public void getOne(Context ctx, String resourceId) {
-        ctx.html(
-            html(
-                body(
-                    h1("Transaction"),
-                    p("Transaction ID: " + resourceId)
-                )
-            ).render()
-        );
+        ctx.status(405).result("Method not supported.");
     }
 
     @Override
     public void create(Context ctx) {
-        String transaction = ctx.formParam("transaction");
-        transactions.add(transaction);
-        ctx.redirect("/transactions");
+        ctx.status(405).result("Use the account transaction route.");
     }
 
     @Override
     public void update(Context ctx, String resourceId) {
-        String transaction = ctx.formParam("transaction");
-
-        try {
-            int id = Integer.parseInt(resourceId);
-
-            if (id >= 0 && id < transactions.size()) {
-                transactions.set(id, transaction);
-            }
-
-            ctx.redirect("/transactions");
-        } catch (NumberFormatException e) {
-            ctx.status(400).result("Invalid transaction ID.");
-        }
+        ctx.status(405).result("Method not supported.");
     }
 
     @Override
     public void delete(Context ctx, String resourceId) {
-        try {
-            int id = Integer.parseInt(resourceId);
-
-            if (id >= 0 && id < transactions.size()) {
-                transactions.remove(id);
-            }
-
-            ctx.redirect("/transactions");
-        } catch (NumberFormatException e) {
-            ctx.status(400).result("Invalid transaction ID.");
-        }
+        ctx.status(405).result("Method not supported.");
     }
 }

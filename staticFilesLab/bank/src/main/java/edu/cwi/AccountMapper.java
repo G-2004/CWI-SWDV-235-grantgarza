@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import java.util.List;
 
 public interface AccountMapper {
@@ -52,4 +53,11 @@ public interface AccountMapper {
         @Result(property = "accountType", column = "account_type")
     })
     Account selectById(Long id);
+
+    @Update("""
+        UPDATE accounts
+        SET balance = #{balance}
+        WHERE account_id = #{id}
+        """)
+    void updateBalance(Account account);
 }

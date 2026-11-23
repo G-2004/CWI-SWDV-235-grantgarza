@@ -74,6 +74,13 @@ public class Main {
                             )
                         );
                     });
+
+                    post("{id}/transactions", ctx -> {
+                        transactionsController.createForAccount(
+                            ctx,
+                            ctx.pathParam("id")
+                        );
+                    });
                 });
 
             });
